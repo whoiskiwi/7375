@@ -119,13 +119,13 @@ A = {Screen, Wait}
 
 | Risk Level | 30-39 | 40-49 | 50-59 | 60+ |
 |------------|-------|-------|-------|-----|
-| High (BRCA) | 2.40% | 6.97% | 7.56% | 10.56% |
-| Medium (Family History) | 0.20% | 0.68% | 1.04% | 1.73% |
-| Low (General Population) | 0.10% | 0.34% | 0.52% | 0.86% |
+| High (BRCA) | 2.40% | 7.07% | 7.58% | 10.56% |
+| Medium (Family History) | 0.20% | 0.69% | 1.03% | 1.73% |
+| Low (General Population) | 0.10% | 0.34% | 0.52% | 0.87% |
 
 > **Data Calculation:**
 > - **Low**: SEER 2018-2022 annual incidence → 2-year probability
-> - **Medium**: Low × 2.0 (family history HR from Dartois et al.)
+> - **Medium**: Low × 2.0 (family history HR from Brewer et al.)
 > - **High**: Low × BRCA relative risk (Antoniou et al.)
 
 #### Table 2: Screening Performance (Age-Stratified)
@@ -155,14 +155,14 @@ A = {Screen, Wait}
 
 #### Table 4: Age-Related Natural Mortality
 
-*Source: US SSA Actuarial Life Tables 2021 (Female)*
+*Source: US SSA Actuarial Life Tables 2022 (Female)*
 
 | Age Group | Annual Death Rate |
 |-----------|-------------------|
-| 30-39 | 0.097% |
-| 40-49 | 0.198% |
-| 50-59 | 0.420% |
-| 60+ | 1.2% |
+| 30-39 | 0.131% |
+| 40-49 | 0.237% |
+| 50-59 | 0.499% |
+| 60+ | 2.781% |
 
 #### State Transition Diagram
 
@@ -186,7 +186,7 @@ Rewards are measured in **Quality-Adjusted Life Years (QALY)**.
 
 #### State Rewards (per year)
 
-*Based on Health Utility Values from PMC9189726 (Shafie et al., 2019)*
+*Based on Health Utility Values from PMC9189726 (Kaur et al., 2022)*
 
 | State | Reward (QALY) | Rationale |
 |-------|---------------|-----------|
@@ -344,12 +344,12 @@ max |V_new(s) - V_old(s)| < θ
 
 | Risk | Age | MDP Optimal | USPSTF 2024 | Q-Diff (Days) | Match |
 |------|-----|-------------|-------------|---------------|-------|
-| High | 30-39 | Screen | Screen | +31.6 | ✓ |
-| High | 40+ | Screen | Screen | +52-80 | ✓ |
-| Medium | 30-39 | Screen | **Wait** | +2.2 | ✗ |
-| Medium | 40+ | Screen | Screen | +7-8 | ✓ |
-| Low | 30-39 | Screen | **Wait** | +0.9 | ✗ |
-| Low | 40+ | Screen | Screen | +3-4 | ✓ |
+| High | 30-39 | Screen | Screen | +31.3 | ✓ |
+| High | 40+ | Screen | Screen | +52.9-80.1 | ✓ |
+| Medium | 30-39 | Screen | **Wait** | +1.8 | ✗ |
+| Medium | 40+ | Screen | Screen | +7.2-8.4 | ✓ |
+| Low | 30-39 | Screen | **Wait** | +0.5 | ✗ |
+| Low | 40+ | Screen | Screen | +3.3-4.0 | ✓ |
 
 **Agreement: 83% (10/12)**
 
@@ -364,7 +364,7 @@ max |V_new(s) - V_old(s)| < θ
 **Key Findings:**
 - **MDP mathematical optimal**: Screen for ALL states
 - **USPSTF-aligned policy**: Wait for Low/Medium risk age 30-39
-- **Disagreement reason**: Q-value difference is marginal (0.9-2.2 days)
+- **Disagreement reason**: Q-value difference is marginal (0.5-1.8 days)
 - **High risk**: Screen at all ages (consistent with NCCN)
 - **Cancer survivors**: Continue biennial screening
 
@@ -406,7 +406,7 @@ All model parameters are derived from peer-reviewed literature and official canc
 |-----------|-------|--------|------|
 | General Population Incidence (Low Risk) | See Table 1 | SEER Cancer Statistics 2018-2022 | [SEER*Explorer](https://seer.cancer.gov/statistics-network/explorer/) |
 | BRCA Relative Risk (High Risk) | 12.5x - 24.5x | Antoniou et al., 2003 (Table 3) | [PMC1180265](https://pmc.ncbi.nlm.nih.gov/articles/PMC1180265/) |
-| Family History Risk (Medium Risk) | 2.0x | Dartois et al., 2017 (Table 2) | [PMC5511313](https://pmc.ncbi.nlm.nih.gov/articles/PMC5511313/) |
+| Family History Risk (Medium Risk) | 2.0x | Brewer et al., 2017 (Table 2) | [PMC5511313](https://pmc.ncbi.nlm.nih.gov/articles/PMC5511313/) |
 
 **BRCA Relative Risk by Age (Table 3 from Antoniou et al., 2003):**
 
@@ -417,7 +417,7 @@ All model parameters are derived from peer-reviewed literature and official canc
 | 50-59 | 18 | 12 | 15.0 |
 | 60-69 | 14 | 11 | 12.5 |
 
-**Family History Hazard Ratio (Table 2 from Dartois et al., 2017):**
+**Family History Hazard Ratio (Table 2 from Brewer et al., 2017):**
 
 | Family History Score | HR | 95% CI |
 |---------------------|-----|--------|
@@ -449,28 +449,28 @@ All model parameters are derived from peer-reviewed literature and official canc
 | Parameter | Value | Source | Link |
 |-----------|-------|--------|------|
 | Early-Undetected → Advanced | 27%/year | Wu et al., 2022 - Stage II→III median = 2.25 years | [PMC9011255](https://pmc.ncbi.nlm.nih.gov/articles/PMC9011255/) |
-| Early-Detected → Cured | 90% | CDC/OWH: Localized 5-year survival = 99%; PMC10314986: 10-year DSS = 95.9% | [OWH](https://womenshealth.gov/blog/99-percent-survival-rate-breast-cancer-caught-early), [PMC10314986](https://pmc.ncbi.nlm.nih.gov/articles/PMC10314986/) |
+| Early-Detected → Cured | 90% | Marcadis et al., 2022: Stage I 10-year DSS = 95.9% | [PMC10314986](https://pmc.ncbi.nlm.nih.gov/articles/PMC10314986/) |
 | Early-Detected → Advanced | 10% | 1 - Cure rate (treatment failure) | [Calculated] |
-| Cured → Recurrence | 1.6%/year | JNCI 2022 - Late recurrence 15.53 per 1000 person-years | [PMC8902439](https://pmc.ncbi.nlm.nih.gov/articles/PMC8902439/) |
+| Cured → Recurrence | 1.6%/year | Pedersen et al., 2021 - Late recurrence 15.53 per 1000 person-years | [PMC8902439](https://pmc.ncbi.nlm.nih.gov/articles/PMC8902439/) |
 | Advanced → Dead | 20.1%/year | SEER distant 5-year survival = 32.6% → annual = 20.1% | [SEER Survival](https://seer.cancer.gov/statfacts/html/breast.html) |
 
 #### 5.4 Natural Mortality Rates
 
 | Age Group | Annual Rate | Source | Link |
 |-----------|-------------|--------|------|
-| 30-39 | 0.097% | US Social Security Administration Actuarial Life Tables (2021) | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
-| 40-49 | 0.198% | US SSA Life Tables - Female q(x) averaged over decade | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
-| 50-59 | 0.420% | US SSA Life Tables - Female mortality rates | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
-| 60+ | 1.2% | US SSA Life Tables - Average ages 60-80 | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
+| 30-39 | 0.131% | US Social Security Administration Actuarial Life Tables (2022) | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
+| 40-49 | 0.237% | US SSA Life Tables - Female q(x) averaged over decade | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
+| 50-59 | 0.499% | US SSA Life Tables - Female mortality rates | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
+| 60+ | 2.781% | US SSA Life Tables - Average ages 60-85 | [SSA Table 4C6](https://www.ssa.gov/oact/STATS/table4c6.html) |
 
 #### 5.5 QALY Reward Values (Health Utility Values)
 
 | Parameter | Value | Source | Link |
 |-----------|-------|--------|------|
 | Healthy | 1.00 QALY/year | General population baseline | [Standard] |
-| Cured | 0.88 QALY/year | Shafie et al., 2019 - Post-treatment survivors (range: 0.71-0.95) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
-| Early-Detected (in treatment) | 0.71 QALY/year | Shafie et al., 2019 - During active treatment (range: 0.52-0.80) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
-| Advanced Cancer | 0.45 QALY/year | Shafie et al., 2019 - Metastatic/advanced (range: 0.08-0.82) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
+| Cured | 0.88 QALY/year | Kaur et al., 2022 - Post-treatment survivors (range: 0.71-0.95) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
+| Early-Detected (in treatment) | 0.71 QALY/year | Kaur et al., 2022 - During active treatment (range: 0.52-0.80) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
+| Advanced Cancer | 0.45 QALY/year | Kaur et al., 2022 - Metastatic/advanced (range: 0.08-0.82) | [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/) |
 | Dead | 0.00 QALY | Terminal state | [Standard] |
 
 > **Note:** Health Utility Values from systematic review of 69 studies using EQ-5D and TTO instruments. Values represent weighted means from reported ranges.
@@ -523,8 +523,7 @@ week_01/
 │   ├── ARCHITECTURE.md             # Code architecture documentation
 │   ├── DATA_SOURCES.md             # Complete parameter sources documentation
 │   ├── MODEL_DESIGN.md             # MDP model design introduction
-│   ├── REPORT.md                   # Project report
-│   └── PRESENTATION.md            # Presentation slides
+│   └── REPORT.md                   # Project report
 ├── src/
 │   ├── main.py                     # Entry point
 │   ├── config/
@@ -559,99 +558,25 @@ python main.py
 
 ## 8. References
 
-### Primary Data Sources
+> See [DATA_SOURCES.md](docs/DATA_SOURCES.md) for complete citations, data sources, calculations, and parameter derivations.
 
-1. **SEER Cancer Statistics (2018-2022)**
-   - Source: Surveillance, Epidemiology, and End Results Program
-   - URL: https://seer.cancer.gov/statistics-network/explorer/
-   - Data: Age-specific breast cancer incidence rates per 100,000 women
-   - Used for: Low risk (general population) incidence rates
+### Key Sources
 
-2. **Antoniou A, Pharoah PD, Narod S, et al. (2003)**
-   - Title: "Average Risks of Breast and Ovarian Cancer Associated with BRCA1 or BRCA2 Mutations Detected in Case Series Unselected for Family History: A Combined Analysis of 22 Studies"
-   - Journal: American Journal of Human Genetics
-   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC1180265/
-   - Data: BRCA1/BRCA2 relative risk by age group (Table 3)
-   - Used for: High risk (BRCA carriers) incidence rate multipliers
-
-3. **Dartois L, Gauthier E, Heber-Suffrin A, et al. (2017)**
-   - Title: "Family history and risk of breast cancer: an analysis accounting for family structure"
-   - Journal: Breast Cancer Research and Treatment
-   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC5511313/
-   - Data: Family history hazard ratios (Table 2)
-   - Used for: Medium risk (family history) incidence rate multiplier
-
-4. **Mittmann N, Stout NK, Lee P, et al. (2015)**
-   - Title: "Total cost-effectiveness of mammography screening strategies"
-   - Journal: Health Reports (Statistics Canada)
-   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC4894487/
-   - Data: Screening disutility (0.006 for 1 week), False positive disutility (0.105 for 5 weeks)
-   - Used for: Screening cost (-0.000115 QALY) and false positive cost (-0.010 QALY)
-
-5. **Defined T, Defined K, et al. (2019)**
-   - Title: "Disutility associated with cancer screening programs: A systematic review"
-   - Journal: PLOS ONE
-   - URL: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0220148
-   - Data: Screening disutility values (validation reference)
-   - Used for: Validation of screening cost parameters (not primary source)
-
-6. **SEER Cancer Survival Statistics**
-   - URL: https://seer.cancer.gov/statfacts/html/breast.html
-   - Data: 5-year survival rates by stage (Localized: 99%, Regional: 86%, Distant: 31%)
-   - Used for: Disease progression and mortality parameters
-
-7. **Shafie AA, et al. (2019)**
-   - Title: "Health utility values in breast cancer: A systematic review"
-   - Journal: Asian Pacific Journal of Cancer Prevention
-   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/
-   - Data: Health Utility Values (HUV) for breast cancer health states
-   - Used for: QALY reward values (Early-Detected: 0.71, Cured: 0.88, Advanced: 0.45)
-
-8. **US Social Security Administration (2021)**
-   - Title: "Actuarial Life Tables - Table 4C6 (Female)"
-   - URL: https://www.ssa.gov/oact/STATS/table4c6.html
-   - Data: Age-specific annual mortality rates for US females
-   - Used for: Natural mortality rates by age group
-
-9. **Azarpey et al. (2023)**
-   - Title: "Sensitivity and specificity of ultrasound and mammography for the detection of breast malignancy: A systematic review and meta-analysis"
-   - Journal: Oncology and Radiotherapy
-   - URL: https://www.oncologyradiotherapy.com/articles/sensitivity-and-specificity-of-ultrasound-and-mammography
-   - Data: Pooled mammography sensitivity 78% (95% CI: 72-83%), specificity 78% (95% CI: 66-86%) from 28 studies (n=7,556)
-   - Used for: Screening performance parameters
-
-10. **Park et al. (2022)**
-    - Title: "Breast cancer stage transition probabilities in Markov modeling"
-    - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC9011255/
-    - Data: Annual transition probabilities between cancer stages
-    - Used for: Disease progression rates
-
-11. **CDC Office on Women's Health (2022)**
-    - Title: "99 Percent Survival Rate for Breast Cancer Caught Early"
-    - URL: https://womenshealth.gov/blog/99-percent-survival-rate-breast-cancer-caught-early
-    - Data: Localized breast cancer 5-year survival = 99%
-    - Used for: Early-detected treatment success rate
-
-12. **Marcadis et al. (2022)**
-    - Title: "Relative Survival With Early-Stage Breast Cancer in Screened and Unscreened Populations"
-    - Journal: Mayo Clinic Proceedings
-    - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC10314986/
-    - Data: Stage I 10-year disease-specific survival = 95.9%
-    - Used for: Early-detected treatment success rate
-
-13. **Wu et al. (2022)**
-    - Title: "The natural history of breast cancer: a chronological analysis of breast cancer progression using data from the SEER database"
-    - Journal: Annals of Translational Medicine
-    - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC9011255/
-    - Data: Untreated breast cancer progression times (n=12,687)
-      - Stage II → III: 2.0-2.5 years → Annual rate ≈ 27%
-    - Used for: Early-to-advanced progression rate
-
-### Additional References
-
-14. NCCN Guidelines for Breast Cancer Screening
-15. American Cancer Society Breast Cancer Statistics
-16. WHO Position Paper on Mammography Screening
+1. **SEER Cancer Statistics (2018-2022)** — [SEER*Explorer](https://seer.cancer.gov/statistics-network/explorer/)
+2. **SEER Stat Facts** — [Female Breast Cancer](https://seer.cancer.gov/statfacts/html/breast.html)
+3. **US SSA (2022)** — [Life Table 4C6 (Female)](https://www.ssa.gov/oact/STATS/table4c6.html)
+4. **USPSTF (2024)** — JAMA 2024;331(22):1918-1930. [Full Text](https://jamanetwork.com/journals/jama/fullarticle/2818283)
+5. **Antoniou et al. (2003)** — BRCA relative risk. [PMC1180265](https://pmc.ncbi.nlm.nih.gov/articles/PMC1180265/)
+6. **Brewer et al. (2017)** — Family history HR. [PMC5511313](https://pmc.ncbi.nlm.nih.gov/articles/PMC5511313/)
+7. **Devolli-Disha et al. (2009)** — Screening accuracy by age. [PMC5638217](https://pmc.ncbi.nlm.nih.gov/articles/PMC5638217/)
+8. **Kerlikowske et al. (1996)** — Screening sensitivity in older women. [PubMed 8667536](https://pubmed.ncbi.nlm.nih.gov/8667536/)
+9. **Wu et al. (2022)** — Cancer progression rates. [PMC9011255](https://pmc.ncbi.nlm.nih.gov/articles/PMC9011255/)
+10. **Marcadis et al. (2022)** — Early-stage survival. [PMC10314986](https://pmc.ncbi.nlm.nih.gov/articles/PMC10314986/)
+11. **Pedersen et al. (2021)** — Recurrence rates. [PMC8902439](https://pmc.ncbi.nlm.nih.gov/articles/PMC8902439/)
+12. **Kaur et al. (2022)** — Health utility values. [PMC9189726](https://pmc.ncbi.nlm.nih.gov/articles/PMC9189726/)
+13. **Mittmann et al. (2015)** — Screening disutility (CISNET). [PMC4894487](https://pmc.ncbi.nlm.nih.gov/articles/PMC4894487/)
+14. **Sanders et al. (2016)** — Discount rate recommendation. [JAMA](https://jamanetwork.com/journals/jama/fullarticle/2552214)
+15. **Sutton & Barto (2018)** — *Reinforcement Learning: An Introduction*. [PDF](http://incompleteideas.net/book/RLbook2020.pdf)
 
 ---
 
