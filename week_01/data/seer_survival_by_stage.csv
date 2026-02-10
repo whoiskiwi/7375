@@ -1,0 +1,5 @@
+Stage,Five_Year_Survival,Percent_of_Cases,Description
+Localized,1.000,0.64,Confined to Primary Site
+Regional,0.872,0.28,Spread to Regional Lymph Nodes
+Distant,0.326,0.06,Cancer Has Metastasized
+Unknown,0.702,0.02,Unstaged
