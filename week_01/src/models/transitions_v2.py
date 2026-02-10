@@ -4,7 +4,7 @@ Transition Probability Calculator - Version 2 (Age-Stratified)
 Key Update: Uses age-specific screening parameters
 """
 
-from typing import Dict, Callable
+from typing import Dict
 import logging
 
 from .state import State

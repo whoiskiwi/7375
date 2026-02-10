@@ -111,7 +111,7 @@ PROGRESSION_ANNUAL = {
     "cured_to_recurrence": 0.016,        # recurrence 1.6%/yr
 }
 
-PROGRESSION_BIENNIAL = {
+_PROGRESSION_BASE = {
     "early_to_advanced": annual_to_biennial(PROGRESSION_ANNUAL["early_to_advanced"]),
     "early_detected_to_cured": PROGRESSION_ANNUAL["early_detected_to_cured"],
     "early_detected_to_advanced": PROGRESSION_ANNUAL["early_detected_to_advanced"],
@@ -178,7 +178,7 @@ def build_progression_rates_biennial() -> Dict[str, float]:
     distant_5yr_survival = seer_survival["Distant"]
     advanced_death_rate_annual = calculate_annual_death_rate(distant_5yr_survival)
 
-    progression = PROGRESSION_BIENNIAL.copy()
+    progression = _PROGRESSION_BASE.copy()
     progression["advanced_to_dead"] = round(annual_to_biennial(advanced_death_rate_annual), 3)
     return progression
 

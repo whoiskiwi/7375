@@ -55,7 +55,7 @@ Find the optimal screening strategy that maximizes expected cumulative Quality-A
 | Level | Description | Data Source |
 |-------|-------------|-------------|
 | High | BRCA1/BRCA2 carriers | Antoniou et al., 2003 (RR: 12.5x-24.5x) |
-| Medium | First-degree relative with breast cancer | Dartois et al., 2017 (HR: 2.0x) |
+| Medium | First-degree relative with breast cancer | Brewer et al., 2017 (HR: 2.0x) |
 | Low | General population | SEER 2018-2022 baseline |
 
 ### 3.2 Age Groups (4)
@@ -157,7 +157,7 @@ Other states have automatic transitions:
 
 ### 5.1 Cancer Incidence Rates
 
-**Source:** SEER 2018-2022, Antoniou 2003, Dartois 2017
+**Source:** SEER 2018-2022, Antoniou 2003, Brewer 2017
 
 | Risk Level | 30-39 | 40-49 | 50-59 | 60+ |
 |------------|-------|-------|-------|-----|
@@ -192,19 +192,19 @@ Other states have automatic transitions:
 | Early-Undetected → Advanced | 27%/year | PMC9011255 (Wu 2022) |
 | Early-Detected → Cured | 90% | PMC10314986 (Marcadis 2022) |
 | Early-Detected → Advanced | 10% | 1 - Cure rate |
-| Cured → Recurrence | 1.6%/year | PMC8902439 (JNCI 2022) |
+| Cured → Recurrence | 1.6%/year | PMC8902439 (Pedersen et al., 2021) |
 | Advanced → Dead | 20.1%/year | SEER (5yr survival 32.6%) |
 
 ### 5.4 Natural Mortality
 
 **Source:** US SSA Life Table 2022 (Female)
 
-| Age Group | Annual Death Rate |
-|-----------|-------------------|
-| 30-39 | 0.13% |
-| 40-49 | 0.24% |
-| 50-59 | 0.50% |
-| 60+ | 2.78% |
+| Age Group | Annual Death Rate | 2-Year Rate |
+|-----------|-------------------|-------------|
+| 30-39 | 0.131% | 0.26% |
+| 40-49 | 0.237% | 0.47% |
+| 50-59 | 0.499% | 1.00% |
+| 60+ | 2.781% | 5.49% |
 
 ---
 
@@ -212,7 +212,7 @@ Other states have automatic transitions:
 
 ### 6.1 State Rewards (QALY per year)
 
-**Source:** PMC9189726 (Shafie et al., 2019 - Systematic review of 69 studies)
+**Source:** PMC9189726 (Kaur et al., 2022 - Systematic review of 69 studies)
 
 | Health State | QALY/year | Literature Range | Rationale |
 |--------------|-----------|------------------|-----------|
@@ -332,196 +332,8 @@ Optimal action: π*(s) = argmax_a Q(s, a)
 
 ---
 
-## 9. Optimal Policy Results (Biennial Model)
+## 9. References
 
-### 9.1 Optimal Policy π*(s) - USPSTF 2024 Aligned
-
-**Healthy State:**
-
-| Risk | 30-39 | 40-49 | 50-59 | 60+ |
-|------|-------|-------|-------|-----|
-| High | **Screen** | **Screen** | **Screen** | **Screen** |
-| Medium | **Screen** | **Screen** | **Screen** | **Screen** |
-| Low | **Screen** | **Screen** | **Screen** | **Screen** |
-
-**Early-Undetected & Cured States:** All Screen (all 36 decision states recommend screening)
-
-### 9.2 Q-Value Analysis (Healthy State)
-
-| Risk | Age | Q(Screen) | Q(Wait) | Diff (Days) | Policy |
-|------|-----|-----------|---------|-------------|--------|
-| High | 30-39 | 54.97 | 54.88 | **+31.6** | Screen |
-| High | 40-49 | 47.77 | 47.55 | **+80.3** | Screen |
-| High | 50-59 | 42.70 | 42.55 | **+55.4** | Screen |
-| High | 60+ | 21.78 | 21.64 | **+52.8** | Screen |
-| Medium | 30-39 | 62.01 | 62.01 | **+2.2** | Screen |
-| Medium | 40-49 | 56.44 | 56.42 | **+7.4** | Screen |
-| Medium | 50-59 | 48.78 | 48.76 | **+7.2** | Screen |
-| Medium | 60+ | 23.52 | 23.50 | **+8.3** | Screen |
-| Low | 30-39 | 62.54 | 62.54 | **+0.9** | Screen |
-| Low | 40-49 | 57.72 | 57.71 | **+3.5** | Screen |
-| Low | 50-59 | 49.99 | 49.98 | **+3.4** | Screen |
-| Low | 60+ | 23.86 | 23.85 | **+4.0** | Screen |
-
-### 9.3 Policy Rationale
-
-- **High Risk (all ages)**: Strong Q-value benefit (+31.6-80.3 days) → Screen
-- **Medium/Low Risk 40+**: Moderate benefit (+3.4-8.3 days) → Screen (USPSTF 2024)
-- **Medium/Low Risk 30-39**: Marginal but positive benefit (+0.9-2.2 days) → Screen
-
-### 9.3 Value Function V*(s)
-
-**Expected Cumulative QALY by State (2-year epochs):**
-
-| Risk | Age | Healthy | Cured | Early-Undetected |
-|------|-----|---------|-------|------------------|
-| High | 30-39 | 54.97 | 49.72 | 40.10 |
-| High | 40-49 | 47.77 | 47.24 | 38.83 |
-| High | 50-59 | 42.70 | 41.92 | 35.89 |
-| High | 60+ | 21.78 | 20.62 | 18.16 |
-| Medium | 30-39 | 62.01 | 49.72 | 40.10 |
-| Medium | 60+ | 23.52 | 20.62 | 18.16 |
-| Low | 30-39 | 62.54 | 49.72 | 40.10 |
-| Low | 60+ | 23.86 | 20.62 | 18.16 |
-
----
-
-## 10. Key Findings
-
-### 10.1 Policy Summary (USPSTF 2024 Aligned)
-
-| Metric | Value |
-|--------|-------|
-| Total decision states | 36 |
-| Screen recommendations | 36 |
-| Wait recommendations | 0 |
-
-### 10.2 Q-Value Support for Policy (Days of QALY Benefit)
-
-| Risk Level | 30-39 | 40-49 | 50-59 | 60+ |
-|------------|-------|-------|-------|-----|
-| **High** | +31.6 days | +80.3 days | +55.4 days | +52.8 days |
-| **Medium** | +2.2 days | +7.4 days | +7.2 days | +8.3 days |
-| **Low** | +0.9 days | +3.5 days | +3.4 days | +4.0 days |
-
-### 10.3 Clinical Implications
-
-| Finding | Q-Value Support | Guideline Basis |
-|---------|-----------------|-----------------|
-| **High Risk: Screen ALL ages** | Strong (+31.6-80.3 days) | NCCN: BRCA screening from age 25-30 |
-| **Medium/Low Risk 40+: Screen** | Moderate (+3.4-8.3 days) | USPSTF 2024: Biennial screening 40-74 |
-| **Medium/Low Risk 30-39: Screen** | Marginal (+0.9-2.2 days) | MDP optimal; marginal but positive benefit |
-| **Cancer survivors: Screen** | Recurrence monitoring | Standard clinical practice |
-
-### 10.4 Policy Rationale
-
-The USPSTF-aligned policy is supported by Q-value analysis:
-
-1. **High-risk patients** benefit substantially from screening at all ages, with Q-value differences of +31.6 to +80.3 days per biennial decision
-2. **Medium/Low-risk patients aged 40+** show moderate but consistent benefit (+3.4 to +8.3 days), supporting USPSTF's biennial screening recommendation
-3. **Medium/Low-risk patients aged 30-39** show marginal but positive benefit (+0.9 to +2.2 days), with the MDP mathematical optimal recommending screening for all states
-
----
-
-## 11. Model Characteristics
-
-### 11.1 Strengths
-
-| Feature | Description |
-|---------|-------------|
-| **Data-Driven** | All parameters from peer-reviewed literature |
-| **Auto-Loading** | 3 CSV files automatically load real data |
-| **Interpretable** | Q-value comparison shows decision rationale |
-| **Extensible** | Easy to add new risk factors or interventions |
-| **Validated** | Results align with clinical guidelines |
-
-### 11.2 Data Sources Summary
-
-| Parameter Category | Source | Data Type |
-|--------------------|--------|-----------|
-| Incidence Rates | SEER 2018-2022 | CSV (auto-loaded) |
-| BRCA Relative Risk | PMC1180265 | Hardcoded |
-| Family History HR | PMC5511313 | Hardcoded |
-| Screening Performance | Azarpey 2023 | Hardcoded |
-| Disease Progression | PMC9011255, PMC10314986, PMC8902439 | Hardcoded |
-| Natural Mortality | SSA Life Table 2022 | CSV (auto-loaded) |
-| Survival by Stage | SEER Stat Facts | CSV (auto-loaded) |
-| Health Utility Values | PMC9189726 | Hardcoded |
-
-### 11.3 Limitations
-
-1. **Simplified Health States** - Real disease progression more complex
-2. **No Treatment Choice** - Model assumes standard treatment protocol
-3. **US Data** - May not generalize to other populations
-4. **Static Risk** - Risk level doesn't change over time in model
-5. **No Age Progression** - Patients stay in their age group within the model
-
----
-
-## 12. File Structure
-
-```
-week_01/
-├── README.md                       # Project overview
-├── data/                           # Raw data files (auto-loaded)
-│   ├── explorer_download.csv       # SEER incidence data
-│   ├── ssa_life_table_female_2022.csv  # SSA mortality data
-│   └── seer_survival_by_stage.csv  # SEER survival data
-├── docs/                           # Documentation
-│   ├── MODEL_DESIGN.md             # This document
-│   ├── DATA_SOURCES.md             # Complete parameter sources
-│   ├── ARCHITECTURE.md             # Code architecture
-│   ├── REPORT.md                   # Detailed report
-│   └── PRESENTATION.md            # Presentation slides
-├── src/
-│   ├── main.py                     # Entry point
-│   ├── config/
-│   │   ├── constants.py            # Pure constants
-│   │   └── parameters_biennial.py  # Computed biennial parameters
-│   ├── data/
-│   │   ├── loaders.py              # CSV file readers
-│   │   └── processors.py          # Data transformation
-│   ├── models/
-│   │   ├── state.py                # State data class
-│   │   ├── transitions_v2.py       # Transition calculator (age-stratified)
-│   │   ├── rewards.py              # Reward calculator
-│   │   └── mdp.py                  # Main MDP class
-│   ├── algorithms/
-│   │   └── policy_iteration.py     # Policy iteration algorithm
-│   └── utils/
-│       ├── output.py               # Console output formatting
-│       └── export.py               # CSV export functions
-└── results/
-    ├── optimal_policy.csv          # Output: π*(s)
-    └── value_function.csv          # Output: V*(s)
-```
-
----
-
-## 13. Running the Model
-
-```bash
-cd src
-python main.py
-```
-
-**Output:**
-- Console: Policy iteration progress, optimal policy table, Q-value comparison
-- Files: `results/optimal_policy.csv`, `results/value_function.csv`
-
----
-
-## 14. References
-
-1. **SEER Cancer Statistics (2018-2022)** - https://seer.cancer.gov/statistics-network/explorer/
-2. **Antoniou et al. (2003)** - PMC1180265 - BRCA relative risk
-3. **Dartois et al. (2017)** - PMC5511313 - Family history hazard ratio
-4. **Azarpey et al. (2023)** - Mammography sensitivity/specificity meta-analysis
-5. **Wu et al. (2022)** - PMC9011255 - Cancer progression rates
-6. **Marcadis et al. (2022)** - PMC10314986 - Treatment success rates
-7. **JNCI (2022)** - PMC8902439 - Recurrence rates
-8. **SSA Life Tables (2022)** - https://www.ssa.gov/oact/STATS/table4c6.html
-9. **Shafie et al. (2019)** - PMC9189726 - Health utility values
-10. **Defined et al. (2013)** - PMC3759993 - Screening disutility
-
-> **See [DATA_SOURCES.md](DATA_SOURCES.md) for complete citations and calculations.**
+> For experimental results and analysis, see [REPORT.md](REPORT.md).
+> For code architecture and file structure, see [ARCHITECTURE.md](ARCHITECTURE.md).
+> For complete citations and parameter derivations, see [DATA_SOURCES.md](DATA_SOURCES.md).

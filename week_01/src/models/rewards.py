@@ -16,19 +16,19 @@ class RewardCalculator:
     Attributes:
         rewards: Dictionary of health utility values and costs
         incidence_rates: Cancer incidence rates (for false positive calculation)
-        screening: Screening parameters (for false positive calculation)
+        screening_by_age: Age-specific screening parameters
     """
 
     def __init__(
         self,
         rewards: Dict[str, float],
         incidence_rates: Dict,
-        screening: Dict,
+        screening_by_age: Dict[str, Dict],
         progression: Dict = None
     ):
         self.rewards = rewards
         self.incidence = incidence_rates
-        self.screening = screening
+        self.screening_by_age = screening_by_age
         self.progression = progression or {}
 
     def get_reward(self, state: State, action: str) -> float:
@@ -85,8 +85,8 @@ class RewardCalculator:
             incidence = self.incidence[risk][age]
             p_no_cancer = 1 - incidence
 
-        # False positive probability
-        false_positive_rate = self.screening["false_positive"]
+        # False positive probability (age-specific)
+        false_positive_rate = self.screening_by_age[age]["false_positive"]
 
         # Expected cost
         fp_cost = self.rewards["false_positive_cost"]

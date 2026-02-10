@@ -15,8 +15,7 @@ week_01/
 │   ├── ARCHITECTURE.md             # This document
 │   ├── DATA_SOURCES.md             # Parameter sources
 │   ├── MODEL_DESIGN.md             # MDP model design
-│   ├── REPORT.md                   # Detailed report
-│   └── PRESENTATION.md            # Presentation slides
+│   └── REPORT.md                   # Detailed report
 ├── src/
 │   ├── main.py                     # Entry point
 │   ├── config/

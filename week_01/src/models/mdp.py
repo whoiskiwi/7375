@@ -80,7 +80,7 @@ class BreastCancerScreeningMDP:
         self._reward_calc = RewardCalculator(
             rewards=REWARDS_BIENNIAL,
             incidence_rates=INCIDENCE_RATE_BIENNIAL,
-            screening=SCREENING_BY_AGE[REFERENCE_AGE_GROUP],
+            screening_by_age=SCREENING_BY_AGE,
             progression=PROGRESSION_BIENNIAL
         )
 
