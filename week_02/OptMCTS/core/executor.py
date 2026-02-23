@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import tempfile
 import subprocess
 
@@ -19,7 +20,7 @@ def execute_code(code):
         temp_file = f.name
     try:
         result = subprocess.run(
-            ['python3', temp_file],
+            [sys.executable, temp_file],
             capture_output=True,
             text=True,
             timeout=120

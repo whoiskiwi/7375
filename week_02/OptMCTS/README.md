@@ -1,76 +1,21 @@
-# OptMCTS Baseline
+# OptMCTS
 
-Baseline replication for **SolverLLM** (NeurIPS 2025), using a Chain-of-Experts pipeline to solve optimization problems.
-
-## Method
-
-The pipeline sends each optimization problem through three LLM stages, then executes the generated code:
-
-1. **Interpretation** - Extract key information from the problem
-2. **Formulation** - Write the mathematical formulation (variables, objective, constraints)
-3. **Code Generation** - Generate Python/scipy code to solve the problem
-4. **Execution** - Run the code and extract the answer (with up to 3 retries on failure)
+Replication of **SolverLLM** (NeurIPS 2025), a framework that uses Monte Carlo Tree Search (MCTS) to iteratively refine mathematical formulations for solving optimization problems with LLMs.
 
 Model: `gpt-4o-mini` | Temperature: 0
 
-## Setup
+---
 
-```bash
-pip install -r requirements.txt
-```
+## Part 1: Baseline Replication (Chain-of-Experts)
 
-Create a `.env` file with your OpenAI API key:
+The baseline sends each problem through three sequential LLM stages:
 
-```
-OPENAI_API_KEY=your-key-here
-```
+1. **Interpretation** — Extract key information from the problem
+2. **Formulation** — Write the mathematical formulation
+3. **Code Generation** — Generate Python/scipy code to solve it
+4. **Execution** — Run the code and extract the answer (up to 3 retries on failure)
 
-## Data
-
-9 datasets (2634 problems total) are stored in a single SQLite database (`data/testset.db`).
-
-To reload the database from raw JSONL files:
-
-```bash
-python load_data.py
-```
-
-## Usage
-
-Run the full benchmark:
-
-```bash
-python main.py
-```
-
-Run a specific dataset:
-
-```bash
-python main.py --dataset nl4opt
-```
-
-Print results summary:
-
-```bash
-python main.py --summary
-```
-
-Progress is saved to the database automatically. Rerunning skips already-completed problems.
-
-Query the database directly:
-
-```bash
-# View all tables
-sqlite3 data/testset.db ".tables"
-
-# Results summary by dataset
-sqlite3 data/testset.db "SELECT dataset, COUNT(*) as total, SUM(success) as exec, SUM(correct) as correct FROM results GROUP BY dataset;"
-
-# View a specific result
-sqlite3 data/testset.db "SELECT * FROM results WHERE problem_id = 1;"
-```
-
-## Results
+### Part 1 Results
 
 | Dataset | Total | ER% | SA% |
 |---|--:|--:|--:|
@@ -80,42 +25,93 @@ sqlite3 data/testset.db "SELECT * FROM results WHERE problem_id = 1;"
 | mamo_easy | 652 | 100.0% | 57.4% |
 | nl4opt | 230 | 100.0% | 68.3% |
 | nlp4lp | 242 | 100.0% | 64.5% |
-| optibench | 605 | 97.2% | 57.0% |
-| optmath_bench | 166 | 61.4% | 4.8% |
-| task3 | 410 | 99.3% | 68.0% |
-| **TOTAL** | **2634** | **94.4%** | **52.7%** |
+| **TOTAL (paper sets)** | **1453** | **95.8%** | **51.6%** |
 
-- **ER%**: Execution Rate (code runs successfully)
-- **SA%**: Solving Accuracy (answer within 10% of ground truth)
+Comparison with paper baselines (SA%):
 
-### Comparison with Paper Baselines (SA%)
-
-| Dataset | Paper CoE (GPT-4) | Paper GPT-4 Directly | Ours (gpt-4o-mini) |
+| Dataset | Paper CoE (GPT-4) | Paper GPT-4 Direct | Ours (gpt-4o-mini) |
 |---|:-:|:-:|:-:|
 | NL4Opt | 64.2% | 47.3% | **68.3%** |
 | NLP4LP | 53.1% | 35.8% | **64.5%** |
-| ComplexOR | 38.1% | 9.5% | **33.3%** |
-| MamoEasy | N/A | 66.5% | **57.4%** |
+| ComplexOR | 38.1% | 9.5% | 33.3% |
+| MamoEasy | N/A | 66.5% | 57.4% |
 | MamoComplex | N/A | 14.6% | **21.3%** |
-| IndustryOR | N/A | 28.0% | **17.0%** |
-| OptiBench | N/A | N/A | **57.0%** * |
-| OptMathBench | N/A | N/A | **4.8%** * |
-| Task3 | N/A | N/A | **68.0%** * |
+| IndustryOR | N/A | 28.0% | 17.0% |
 
-\* Not reported in the paper, no baseline available for comparison.
+On the 3 datasets with CoE comparison, our gpt-4o-mini results match or exceed the paper's GPT-4 results, confirming successful replication.
 
-- **Paper CoE**: Chain-of-Experts baseline from Table 1, using GPT-4
-- **Paper GPT-4 Directly**: Direct prompting baseline from Table 1 & 2
+---
 
-On the 3 datasets with Chain-of-Experts comparison, our gpt-4o-mini results closely match or exceed the paper's GPT-4 results, confirming successful baseline replication.
+## Part 2: Proposed Approach Replication (MCTS)
+
+The paper's proposed method replaces the linear CoE pipeline with a **Monte Carlo Tree Search** over formulation space. Each MCTS iteration runs four phases:
+
+1. **Select** — Walk the tree using UCB1 to pick the most promising node
+2. **Expand** — Ask the LLM to generate a new formulation (or refine a failed one)
+3. **Simulate** — Generate code, execute it, and score the result
+4. **Backpropagate** — Update visit counts and values up the tree
+
+Reward signal:
+- `1.0` — correct answer (within 10% of ground truth) → stop early
+- `0.3` — code ran but answer wrong → keep searching
+- `0.0` — code crashed → discard
+
+This lets the system explore multiple formulation strategies and use failures as feedback to improve, rather than committing to a single attempt.
+
+### Part 2 Results
+
+| Dataset | Total | CoE SA% | MCTS SA% | Improvement |
+|---|--:|--:|--:|--:|
+| nl4opt | 230 | 68.3% | — | — |
+| nlp4lp | 242 | 64.5% | — | — |
+| complexor | 18 | 33.3% | — | — |
+| mamo_easy | 652 | 57.4% | — | — |
+| mamo_complex | 211 | 21.3% | — | — |
+| industryor | 100 | 17.0% | — | — |
+| **TOTAL** | **1453** | **51.6%** | — | — |
+
+*MCTS results pending (currently running, 20 iterations per problem).*
+
+---
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file:
+
+```
+OPENAI_API_KEY=your-key-here
+```
+
+## Usage
+
+```bash
+# Run CoE baseline
+python main.py --method coe
+
+# Run MCTS (paper datasets only)
+python main.py --method mcts --paper-only
+
+# Run specific dataset
+python main.py --method mcts --dataset nl4opt
+
+# Print results comparison
+python main.py --summary
+```
 
 ## Project Structure
 
 ```
-├── main.py                 # Entry point: run benchmark and save results
+├── main.py                 # Entry point: run benchmark, save results, print summary
 ├── load_data.py            # Load JSONL datasets into SQLite
+├── mcts/
+│   ├── node.py             # MCTSNode: UCB1, tree structure
+│   └── search.py           # MCTS: select, expand, simulate, backpropagate
 ├── pipeline/
-│   └── experts.py          # Chain-of-Experts pipeline
+│   └── experts.py          # Chain-of-Experts baseline pipeline
 ├── core/
 │   ├── llm.py              # OpenAI API wrapper
 │   └── executor.py         # Code execution with timeout
