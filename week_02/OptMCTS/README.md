@@ -107,17 +107,20 @@ python main.py --summary
 ```
 ├── main.py                 # Entry point: run benchmark, save results, print summary
 ├── load_data.py            # Load JSONL datasets into SQLite
-├── mcts/
-│   ├── node.py             # MCTSNode: UCB1, tree structure
-│   └── search.py           # MCTS: select, expand, simulate, backpropagate
-├── pipeline/
-│   └── experts.py          # Chain-of-Experts baseline pipeline
-├── core/
-│   ├── llm.py              # OpenAI API wrapper
-│   └── executor.py         # Code execution with timeout
-├── evaluation/
-│   └── evaluator.py        # Answer extraction and evaluation
-└── data/
-    ├── testset.db          # SQLite database (problems + results)
-    └── testset/            # Raw JSONL dataset files
+│
+├── pipeline/               # [Part 1] Chain-of-Experts baseline
+│   └── experts.py          #   Three-stage LLM pipeline
+│
+├── mcts/                   # [Part 2] MCTS proposed approach
+│   ├── node.py             #   MCTSNode: UCB1, tree structure
+│   └── search.py           #   MCTS: select, expand, simulate, backpropagate
+│
+├── core/                   # [Shared]
+│   ├── llm.py              #   OpenAI API wrapper
+│   └── executor.py         #   Code execution with timeout
+├── evaluation/             # [Shared]
+│   └── evaluator.py        #   Answer extraction and evaluation
+└── data/                   # [Shared]
+    ├── testset.db          #   SQLite database (problems + results)
+    └── testset/            #   Raw JSONL dataset files
 ```
