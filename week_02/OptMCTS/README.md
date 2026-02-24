@@ -8,12 +8,14 @@ Model: `gpt-4o-mini` | Temperature: 0
 
 ## Part 1: Baseline Replication (Chain-of-Experts)
 
-The baseline sends each problem through three sequential LLM stages:
+The baseline replicates the **Chain-of-Experts (CoE)** pipeline from the paper. Each problem passes through three sequential LLM stages, then a code execution stage:
 
-1. **Interpretation** — Extract key information from the problem
-2. **Formulation** — Write the mathematical formulation
-3. **Code Generation** — Generate Python/scipy code to solve it
-4. **Execution** — Run the code and extract the answer (up to 3 retries on failure)
+1. **Interpretation** — Extract key information and constraints from the problem text
+2. **Formulation** — Write a mathematical formulation (variables, objective, constraints)
+3. **Code Generation** — Generate executable Python/scipy code from the formulation
+4. **Execution** — Run the code and extract the numeric answer (up to 3 retries on failure)
+
+All datasets are loaded into a single SQLite database (`data/testset.db`). Results are written back to the `results` table in the same database — no intermediate files are created.
 
 ### Part 1 Results
 
@@ -44,19 +46,56 @@ On the 3 datasets with CoE comparison, our gpt-4o-mini results match or exceed t
 
 ## Part 2: Proposed Approach Replication (MCTS)
 
-The paper's proposed method replaces the linear CoE pipeline with a **Monte Carlo Tree Search** over formulation space. Each MCTS iteration runs four phases:
+The paper's proposed method replaces the linear CoE pipeline with a **Monte Carlo Tree Search over the formulation space**. Rather than generating one complete formulation per problem, MCTS explores many partial formulations incrementally, using LLM feedback to guide the search.
 
-1. **Select** — Walk the tree using UCB1 to pick the most promising node
-2. **Expand** — Ask the LLM to generate a new formulation (or refine a failed one)
-3. **Simulate** — Generate code, execute it, and score the result
-4. **Backpropagate** — Update visit counts and values up the tree
+### Tree Structure
 
-Reward signal:
-- `1.0` — correct answer (within 10% of ground truth) → stop early
-- `0.3` — code ran but answer wrong → keep searching
-- `0.0` — code crashed → discard
+The MCTS tree has **6 layers**, one per formulation element:
 
-This lets the system explore multiple formulation strategies and use failures as feedback to improve, rather than committing to a single attempt.
+```
+root
+└── Type (LP / MILP / NLP …)          layer 1
+    └── Sets (index sets)              layer 2
+        └── Parameters (constants)     layer 3
+            └── Variables (decisions)  layer 4
+                └── Objective          layer 5
+                    └── Constraints    layer 6  ← complete formulation
+```
+
+Each path from root to a layer-6 leaf defines one complete formulation. MCTS navigates this tree to find the best formulation within 20 iterations per problem.
+
+### Three Key Innovations (from the paper)
+
+**1. Dynamic Expansion**
+Unlike standard MCTS, expansion is not limited to leaf nodes. If a node's element is flagged for revision (`trigger=True`) and its local uncertainty exceeds η=0.3, selection stops at that node and new children (alternative choices for the next layer) are added — even if children already exist. Up to 3 candidates are generated per expansion; semantically similar candidates (similarity > 0.8) are pruned.
+
+**2. Prompt Backpropagation**
+After each simulation, the LLM evaluates every layer of the formulation and produces a reasoning signal `(trigger, explanation, guidance)` per layer. The `guidance` is accumulated in a per-layer **knowledge base** (G_l). Future expansion prompts for that layer are injected with this accumulated guidance, steering the LLM toward better formulation choices over iterations.
+
+**3. Uncertainty Backpropagation**
+Instead of adding the raw reward to Q-values, updates are weighted by a **confidence factor** ρ = exp(−U_global), where U_global is estimated from the standard deviation of K=3 repeated LLM evaluations of the same solution. High uncertainty → small ρ → smaller Q update. The update rule is:
+
+```
+Q ← Q + ρ · (R − Q) / N
+```
+
+### Reward Function
+
+```
+R = 0.1 · feasible + 0.8 · score − 0.1 · error
+```
+
+where `score` is an LLM-evaluated quality score (0–100, normalized), `feasible` = 1 if code ran successfully, `error` = 1 if code crashed. Overridden to R = 1.0 when the predicted answer matches ground truth (within 10%).
+
+### UCB Formula
+
+```
+UCB = Q + 2 · sqrt(2 · ln(N_parent) / N)
+```
+
+### Code Generation
+
+Code generation is decoupled from MCTS. Once a complete 6-layer formulation is assembled, Python/scipy code is generated and executed with up to **12 retries** on failure (per paper).
 
 ### Part 2 Results
 
@@ -86,19 +125,25 @@ Create a `.env` file:
 OPENAI_API_KEY=your-key-here
 ```
 
+Load datasets into the database (one-time):
+
+```bash
+python load_data.py
+```
+
 ## Usage
 
 ```bash
-# Run CoE baseline
+# Run CoE baseline (Part 1)
 python main.py --method coe
 
-# Run MCTS (paper datasets only)
+# Run MCTS on paper datasets only (Part 2)
 python main.py --method mcts --paper-only
 
-# Run specific dataset
+# Run MCTS on a specific dataset
 python main.py --method mcts --dataset nl4opt
 
-# Print results comparison
+# Print results summary for both methods
 python main.py --summary
 ```
 
@@ -106,21 +151,22 @@ python main.py --summary
 
 ```
 ├── main.py                 # Entry point: run benchmark, save results, print summary
-├── load_data.py            # Load JSONL datasets into SQLite
+├── load_data.py            # Load JSONL datasets into SQLite (data/testset.db)
 │
 ├── pipeline/               # [Part 1] Chain-of-Experts baseline
-│   └── experts.py          #   Three-stage LLM pipeline
+│   └── experts.py          #   Three-stage LLM pipeline (interpret → formulate → code)
 │
-├── mcts/                   # [Part 2] MCTS proposed approach
-│   ├── node.py             #   MCTSNode: UCB1, tree structure
-│   └── search.py           #   MCTS: select, expand, simulate, backpropagate
+├── mcts/                   # [Part 2] SolverLLM MCTS proposed approach
+│   ├── node.py             #   MCTSNode: 6-layer tree structure, UCB formula
+│   ├── search.py           #   MCTS: select, expand, simulate, backpropagate
+│   └── evaluator.py        #   LLM evaluator: objective score, reasoning signals, uncertainty
 │
 ├── core/                   # [Shared]
-│   ├── llm.py              #   OpenAI API wrapper
-│   └── executor.py         #   Code execution with timeout
+│   ├── llm.py              #   OpenAI API wrapper (standard + logprobs + JSON mode)
+│   └── executor.py         #   Sandboxed code execution with timeout
 ├── evaluation/             # [Shared]
-│   └── evaluator.py        #   Answer extraction and evaluation
+│   └── evaluator.py        #   Answer extraction and correctness evaluation
 └── data/                   # [Shared]
-    ├── testset.db          #   SQLite database (problems + results)
+    ├── testset.db          #   SQLite database (problems + results tables)
     └── testset/            #   Raw JSONL dataset files
 ```
