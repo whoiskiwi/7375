@@ -101,15 +101,15 @@ Code generation is decoupled from MCTS. Once a complete 6-layer formulation is a
 
 | Dataset | Total | CoE SA% | MCTS SA% | Improvement |
 |---|--:|--:|--:|--:|
-| nl4opt | 230 | 68.3% | — | — |
-| nlp4lp | 242 | 64.5% | — | — |
-| complexor | 18 | 33.3% | — | — |
-| mamo_easy | 652 | 57.4% | — | — |
-| mamo_complex | 211 | 21.3% | — | — |
-| industryor | 100 | 17.0% | — | — |
-| **TOTAL** | **1453** | **51.6%** | — | — |
+| nl4opt | 230 | 68.3% | 75.7% | +7.4% |
+| nlp4lp | 242 | 64.5% | 80.0%* | +15.5% |
+| complexor | 18 | 33.3% | 55.6% | +22.3% |
+| mamo_easy | 652 | 57.4% | 77.9% | +20.5% |
+| mamo_complex | 211 | 21.3% | 17.1%† | -4.2% |
+| industryor | 100 | 17.0% | 2.0%† | -15.0% |
 
-*MCTS results pending (currently running, 20 iterations per problem).*
+\* nlp4lp: 60/242 completed so far, SA% is partial.
+† industryor and mamo_complex results are from an earlier run affected by API rate limiting (ER% only 2.0% and 23.7%). Re-run pending.
 
 ---
 

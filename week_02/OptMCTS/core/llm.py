@@ -1,13 +1,41 @@
 import os
 import json
-from openai import OpenAI
+import time
+import logging
+from openai import OpenAI, RateLimitError, APITimeoutError, APIConnectionError
 from dotenv import load_dotenv
 
 load_dotenv()
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+logger = logging.getLogger(__name__)
+
+MAX_RETRIES = 8
+BASE_DELAY = 2  # seconds
 
 
+def _retry_api_call(func):
+    """Decorator: exponential backoff on rate-limit / transient errors."""
+    def wrapper(*args, **kwargs):
+        for attempt in range(MAX_RETRIES):
+            try:
+                return func(*args, **kwargs)
+            except RateLimitError as e:
+                delay = BASE_DELAY * (2 ** attempt)  # 2, 4, 8, 16, 32, 64, 128, 256
+                logger.warning(f"Rate limit hit (attempt {attempt+1}/{MAX_RETRIES}), "
+                               f"retrying in {delay}s...")
+                time.sleep(delay)
+            except (APITimeoutError, APIConnectionError) as e:
+                delay = BASE_DELAY * (2 ** attempt)
+                logger.warning(f"API error: {e} (attempt {attempt+1}/{MAX_RETRIES}), "
+                               f"retrying in {delay}s...")
+                time.sleep(delay)
+        # Final attempt — let exceptions propagate
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@_retry_api_call
 def call_llm(prompt, temperature=0):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -17,6 +45,7 @@ def call_llm(prompt, temperature=0):
     return response.choices[0].message.content.strip()
 
 
+@_retry_api_call
 def call_llm_with_logprobs(prompt, temperature=0.2):
     """Call LLM and return (response_text, list_of_token_logprobs).
     Used for computing local uncertainty (predictive entropy) per the paper."""
@@ -33,6 +62,7 @@ def call_llm_with_logprobs(prompt, temperature=0.2):
     return content, token_logprobs
 
 
+@_retry_api_call
 def call_llm_json(prompt, temperature=0):
     """Call LLM with JSON output mode. Returns parsed dict."""
     response = client.chat.completions.create(
@@ -48,6 +78,7 @@ def call_llm_json(prompt, temperature=0):
         return {}
 
 
+@_retry_api_call
 def call_llm_json_with_logprobs(prompt, temperature=0.2):
     """Call LLM with JSON output mode AND logprobs.
     Returns (parsed_dict, token_logprobs)."""
