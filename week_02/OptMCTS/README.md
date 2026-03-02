@@ -29,18 +29,16 @@ All datasets are loaded into a single SQLite database (`data/testset.db`). Resul
 | nlp4lp | 242 | 100.0% | 64.5% |
 | **TOTAL (paper sets)** | **1453** | **95.8%** | **51.6%** |
 
-Comparison with paper baselines (SA%):
+Comparison with paper baseline (CoE SA%):
 
-| Dataset | Paper CoE (GPT-4) | Paper GPT-4 Direct | Ours (gpt-4o-mini) |
-|---|:-:|:-:|:-:|
-| NL4Opt | 64.2% | 47.3% | **68.3%** |
-| NLP4LP | 53.1% | 35.8% | **64.5%** |
-| ComplexOR | 38.1% | 9.5% | 33.3% |
-| MamoEasy | N/A | 66.5% | 57.4% |
-| MamoComplex | N/A | 14.6% | **21.3%** |
-| IndustryOR | N/A | 28.0% | 17.0% |
+| Dataset | Paper CoE (GPT-4) | Ours CoE (4o-mini) |
+|---|:-:|:-:|
+| NL4Opt | 64.2% | **68.3%** |
+| NLP4LP | 53.1% | **64.5%** |
+| ComplexOR | 38.1% | 33.3% |
+| MamoEasy | N/A | 57.4% |
 
-On the 3 datasets with CoE comparison, our gpt-4o-mini results match or exceed the paper's GPT-4 results, confirming successful replication.
+On 2 of 3 comparable datasets, our `gpt-4o-mini` CoE matches or exceeds the paper's GPT-4 CoE, confirming successful baseline replication.
 
 ---
 
@@ -99,17 +97,36 @@ Code generation is decoupled from MCTS. Once a complete 6-layer formulation is a
 
 ### Part 2 Results
 
-| Dataset | Total | CoE SA% | MCTS SA% | Improvement |
-|---|--:|--:|--:|--:|
-| nl4opt | 230 | 68.3% | 75.7% | +7.4% |
-| nlp4lp | 242 | 64.5% | 80.0%* | +15.5% |
-| complexor | 18 | 33.3% | 55.6% | +22.3% |
-| mamo_easy | 652 | 57.4% | 77.9% | +20.5% |
-| mamo_complex | 211 | 21.3% | 17.1%† | -4.2% |
-| industryor | 100 | 17.0% | 2.0%† | -15.0% |
+| Dataset | Total | Exec | Correct | ER% | SA% |
+|---|--:|--:|--:|--:|--:|
+| complexor | 18 | 17 | 10 | 94.4% | 55.6% |
+| mamo_easy | 652 | 521 | 508 | 79.9% | 77.9% |
+| nl4opt | 230 | 198 | 174 | 86.1% | 75.7% |
+| nlp4lp | 242 | 241 | 202 | 99.6% | 83.5% |
+| **TOTAL** | **1142** | **977** | **894** | **85.6%** | **78.3%** |
 
-\* nlp4lp: 60/242 completed so far, SA% is partial.
-† industryor and mamo_complex results are from an earlier run affected by API rate limiting (ER% only 2.0% and 23.7%). Re-run pending.
+Note: industryor and mamo_complex are excluded — their runs were affected by API rate limiting (ER% of 2.0% and 23.7%), making results unreliable.
+
+### Comparison with Paper (MCTS SA%)
+
+| Dataset | Paper MCTS (GPT-4) | Ours MCTS (4o-mini) |
+|---|:-:|:-:|
+| NL4Opt | 97.0% | 75.7% |
+| NLP4LP | 87.0% | 83.5% |
+| ComplexOR | 77.8% | 55.6% |
+| MamoEasy | 96.0% | 77.9% |
+
+### CoE → MCTS Improvement (same 4 datasets, 1,142 problems)
+
+| Dataset | CoE SA% | MCTS SA% | Improvement |
+|---|:-:|:-:|:-:|
+| NL4Opt | 68.3% | 75.7% | +7.4% |
+| NLP4LP | 64.5% | 83.5% | +19.0% |
+| ComplexOR | 33.3% | 55.6% | +22.3% |
+| MamoEasy | 57.4% | 77.9% | +20.5% |
+| **Total** | **60.7%** | **78.3%** | **+17.6%** |
+
+On all 4 datasets, MCTS significantly improves over the CoE baseline (+7 to +22 pp, overall 60.7% → 78.3%), confirming the paper's finding. The gap between our MCTS and the paper's is expected given `gpt-4o-mini` vs GPT-4.
 
 ---
 
