@@ -11,6 +11,7 @@
 Mathematical optimization problems arise in logistics, finance, engineering, and operations research. Traditionally, solving these problems requires domain expertise to (1) interpret a natural language description, (2) formulate it as a mathematical program, and (3) implement it in a solver. Recent advances in Large Language Models (LLMs) offer the possibility of automating this entire pipeline.
 
 **SolverLLM** (NeurIPS 2025) proposes a novel framework that replaces the traditional linear LLM pipeline with Monte Carlo Tree Search (MCTS) over the formulation space. By treating each element of a mathematical formulation (problem type, sets, parameters, variables, objective, constraints) as a layer in a search tree, SolverLLM can explore multiple alternative formulations and iteratively refine them using LLM feedback.
+Paper poster: `https://neurips.cc/virtual/2025/loc/san-diego/poster/116215`
 
 ### 1.2 Project Objective
 
