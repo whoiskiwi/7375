@@ -92,7 +92,7 @@ Find the optimal screening strategy that maximizes expected cumulative Quality-A
          │    └─────────┘             └────────┬─────────┘    │
          │         │                           │              │
          │         │                  Screen   │  Undetected  │
-         │         │                  (78%)    │  + Progress  │
+         │         │                  (75-87%) │  + Progress  │
          │         │                           ▼              │
          │         │                  ┌────────────────┐      │
          │         │                  │ Early-Detected │      │
@@ -161,14 +161,15 @@ Other states have automatic transitions:
 
 | Risk Level | 30-39 | 40-49 | 50-59 | 60+ |
 |------------|-------|-------|-------|-----|
-| High (BRCA) | 1.21% | 3.60% | 3.86% | 5.43% |
-| Medium (Family) | 0.10% | 0.34% | 0.52% | 0.87% |
-| Low (General) | 0.05% | 0.17% | 0.26% | 0.43% |
+| High (BRCA) | 2.40% | 7.07% | 7.58% | 10.56% |
+| Medium (Family) | 0.20% | 0.69% | 1.03% | 1.73% |
+| Low (General) | 0.10% | 0.34% | 0.52% | 0.87% |
 
 **Calculation Method:**
-- Low = SEER incidence data (per 100,000 → probability)
-- Medium = Low × 2.0 (Family History HR)
-- High = Low × BRCA Relative Risk (age-specific)
+- Annual low-risk incidence is derived from SEER data (per 100,000 → probability)
+- Convert annual probabilities to 2-year probabilities: P(2yr) = 1 - (1 - P(annual))²
+- Medium = Low × 2.0 (Family History HR), then converted to 2-year
+- High = Low × BRCA relative risk (age-specific), then converted to 2-year
 
 ### 5.2 Screening Performance (Age-Stratified)
 
@@ -315,10 +316,10 @@ Output: Optimal policy π*
 
 | Metric | Value |
 |--------|-------|
-| Iterations to converge | 3 |
-| Evaluation iterations per policy | 270-430 |
+| Iterations to converge | 2 |
+| Evaluation iterations per policy | 439 / 371 |
 | Convergence threshold | 1e-6 |
-| Total computation time | < 0.5 seconds |
+| Total computation time | < 0.3 seconds |
 
 ### 8.3 Q-Value Calculation
 
