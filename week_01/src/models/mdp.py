@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.constants import (
     RISK_LEVELS, AGE_GROUPS, HEALTH_STATES,
     ACTIONS, DECISION_STATES, TERMINAL_STATES, GAMMA,
-    NO_DECISION_ACTION, REFERENCE_AGE_GROUP
+    NO_DECISION_ACTION,
 )
 from config.parameters_biennial import (
     INCIDENCE_RATE_BIENNIAL,
@@ -150,4 +150,3 @@ class BreastCancerScreeningMDP:
             True if terminal (Dead), False otherwise
         """
         return state.health in TERMINAL_STATES
-

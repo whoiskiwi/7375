@@ -13,7 +13,7 @@ from algorithms.policy_iteration import PolicyIteration
 from config.constants import RISK_LEVELS, AGE_GROUPS, DECISION_STATES, DAYS_PER_YEAR
 
 
-def print_optimal_policy(mdp: BreastCancerScreeningMDP, policy: Dict[State, str]):
+def print_optimal_policy(policy: Dict[State, str]):
     """Print the optimal policy in a readable format."""
     print("\n" + "=" * 70)
     print("OPTIMAL POLICY \u03c0*(s)")
@@ -55,7 +55,6 @@ def print_value_function(mdp: BreastCancerScreeningMDP, V: np.ndarray):
 
 
 def print_q_value_analysis(
-    mdp: BreastCancerScreeningMDP,
     solver: PolicyIteration,
     policy: Dict[State, str],
 ):
@@ -63,7 +62,6 @@ def print_q_value_analysis(
     Print Q-value comparison for Healthy states with days conversion.
 
     Args:
-        mdp: The MDP model
         solver: The solved PolicyIteration instance
         policy: Policy dict to display in the Policy column
     """

@@ -66,14 +66,10 @@ SCREENING_COSTS = {
 # =============================================================================
 
 SCREENING_BY_AGE = {
-    "30-39": {"sensitivity": 0.75, "specificity": 0.80,
-              "false_negative": 0.25, "false_positive": 0.20},
-    "40-49": {"sensitivity": 0.78, "specificity": 0.85,
-              "false_negative": 0.22, "false_positive": 0.15},
-    "50-59": {"sensitivity": 0.85, "specificity": 0.90,
-              "false_negative": 0.15, "false_positive": 0.10},
-    "60+":   {"sensitivity": 0.87, "specificity": 0.92,
-              "false_negative": 0.13, "false_positive": 0.08},
+    "30-39": {"sensitivity": 0.75, "false_positive": 0.20},
+    "40-49": {"sensitivity": 0.78, "false_positive": 0.15},
+    "50-59": {"sensitivity": 0.85, "false_positive": 0.10},
+    "60+":   {"sensitivity": 0.87, "false_positive": 0.08},
 }
 
 

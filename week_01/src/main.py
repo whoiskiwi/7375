@@ -43,8 +43,8 @@ def main():
     policy, V = solver.solve(verbose=True)
 
     # Print results
-    print_optimal_policy(mdp, policy)
-    print_q_value_analysis(mdp, solver, policy)
+    print_optimal_policy(policy)
+    print_q_value_analysis(solver, policy)
     print_value_function(mdp, V)
     print_summary(policy)
 

@@ -68,7 +68,6 @@ class RewardCalculator:
         Calculate expected false positive cost.
 
         E[FP_cost] = P(no cancer) × P(false positive | no cancer) × FP_cost
-                   = (1 - incidence) × (1 - specificity) × cost
 
         Args:
             state: Current state (Healthy or Cured)
