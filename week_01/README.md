@@ -579,4 +579,4 @@ python main.py
 15. **Sutton & Barto (2018)** — *Reinforcement Learning: An Introduction*. [PDF](http://incompleteideas.net/book/RLbook2020.pdf)
 
 ---
-
+Presentation Link: https://drive.google.com/file/d/1ToT-lbyEHGg04NTz-hPBvD_DZ1Q8jCO1/view?usp=drive_link

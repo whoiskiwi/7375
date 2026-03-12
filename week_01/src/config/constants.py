@@ -81,7 +81,7 @@ SSA_AGE_RANGES = {
     "30-39": (30, 40),
     "40-49": (40, 50),
     "50-59": (50, 60),
-    "60+": (60, 86),  # Upper bound per SSA life table coverage
+    "60+": (60, 86),
 }
 
 # 5-year survival conversion
